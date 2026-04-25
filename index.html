@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1D9E75">
+<title>Hijri Calendar — India</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,sans-serif;background:#f2f1ed;min-height:100vh;padding:1rem;color:#1a1a1a;max-width:600px;margin:0 auto}
+h1{font-size:20px;font-weight:700;margin-bottom:2px}
+.sub{font-size:12px;color:#888;margin-bottom:1.1rem}
+/* Date bar */
+.date-bar{background:#1D9E75;color:#fff;border-radius:14px;padding:1rem 1.2rem;margin-bottom:1.2rem;display:flex;justify-content:space-between;align-items:flex-start}
+.hijri{font-size:20px;font-weight:700;min-height:28px}
+.greg{font-size:12px;opacity:.8;margin-top:3px}
+.sbadge{display:inline-block;font-size:10px;background:rgba(255,255,255,.18);border-radius:20px;padding:3px 10px;margin-top:6px}
+.sbadge.err{background:rgba(255,70,50,.4)}
+.rbtn{font-size:11px;background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:20px;padding:3px 10px;margin-top:6px;margin-left:5px;cursor:pointer}
+.spinner{display:inline-block;width:11px;height:11px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Section */
+.sec{font-size:11px;font-weight:700;color:#999;letter-spacing:.7px;text-transform:uppercase;margin-bottom:8px}
+/* Event cards */
+.elist{display:flex;flex-direction:column;gap:10px;margin-bottom:1.2rem}
+.ecard{background:#fff;border-radius:12px;border:1px solid #eee;padding:12px 13px}
+.ecard-top{display:flex;align-items:flex-start;gap:10px}
+.edot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.einfo{flex:1;min-width:0}
+.ename{font-size:14px;font-weight:700}
+.edate{font-size:12px;color:#aaa;margin-top:2px}
+.ecard-rems{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-top:8px;border-top:1px solid #f5f5f5}
+.rem-chip{font-size:11px;background:#f0faf6;color:#0F6E56;border-radius:20px;padding:3px 9px;border:1px solid #c8eadb}
+.rem-chip.firing{background:#fff8e6;color:#8a5e00;border-color:#f5dfa0}
+.dleft{font-size:13px;font-weight:700;text-align:right;white-space:nowrap;flex-shrink:0}
+.dsoon{color:#E24B4A}.dnear{color:#EF9F27}.dok{color:#888}
+.pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;margin-left:4px}
+.ps{background:#FAECE7;color:#993C1D}.pu{background:#E1F5EE;color:#0F6E56}
+.del-btn{font-size:11px;padding:3px 9px;border-radius:6px;border:1px solid #f0c0c0;background:#fff;color:#E24B4A;cursor:pointer;margin-top:4px}
+.empty{text-align:center;color:#ccc;font-size:13px;padding:1.5rem 0}
+/* Cards */
+.card{background:#fff;border-radius:14px;border:1px solid #eee;padding:1.1rem;margin-bottom:1.1rem}
+.card h3{font-size:15px;font-weight:700;margin-bottom:12px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:9px}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;min-width:100px}
+label{font-size:12px;color:#777;font-weight:600}
+input,select{border:1px solid #ddd;border-radius:8px;padding:9px 10px;font-size:13px;background:#fff;width:100%;-webkit-appearance:none}
+input:focus,select:focus{outline:none;border-color:#1D9E75}
+.btn{background:#1D9E75;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:14px;cursor:pointer;font-weight:700}
+.btn:active{background:#0F6E56}
+.btn-blue{background:#378ADD}.btn-blue:active{background:#185FA5}
+.btn-sm{background:#f5f5f5;color:#444;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;font-weight:600}
+.btn-sm:active{background:#eaeaea}
+/* Reminder builder */
+.rem-builder{background:#f9f9f9;border-radius:10px;padding:10px 11px;margin-bottom:10px}
+.rem-builder-title{font-size:12px;font-weight:700;color:#666;margin-bottom:8px}
+.rem-row{display:flex;gap:7px;align-items:center;margin-bottom:7px;flex-wrap:wrap}
+.rem-row select{flex:1;min-width:100px}
+.rem-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rem-tag{display:flex;align-items:center;gap:5px;background:#e8f5ef;border:1px solid #b8e2cb;border-radius:20px;padding:4px 10px;font-size:12px;color:#0F6E56;font-weight:600}
+.rem-tag button{background:none;border:none;color:#E24B4A;cursor:pointer;font-size:14px;line-height:1;padding:0}
+/* Status */
+.sbar{margin-top:10px;font-size:12px;padding:8px 12px;border-radius:8px;display:none}
+.sok{background:#EAF3DE;color:#3B6D11;display:block}
+.serr{background:#FCEBEB;color:#A32D2D;display:block}
+.tip{font-size:11px;color:#bbb;margin-top:8px;line-height:1.6}
+.tip a{color:#1D9E75}
+code{background:#f0f0f0;padding:1px 5px;border-radius:4px;font-size:11px}
+.install-bar{background:#f0faf6;border:1px solid #b8e8d4;border-radius:12px;padding:10px 13px;margin-bottom:1.1rem;font-size:12px;color:#0F6E56;display:none}
+.install-bar b{font-size:13px;display:block;margin-bottom:2px}
+@media(max-width:420px){.frow{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<h1>🕌 Hijri Calendar</h1>
+<p class="sub">India moon sighting · Auto-repeating yearly events · Multi-reminder</p>
+
+<div class="install-bar" id="installBar">
+  <b>Add to Home Screen</b>
+  Tap ⋮ menu → "Add to Home Screen" to use like an app on your phone.
+</div>
+
+<div class="date-bar">
+  <div>
+    <div class="hijri" id="hijriDate"><span class="spinner"></span>Syncing…</div>
+    <div class="greg" id="gregDate"></div>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:4px">
+      <span class="sbadge" id="syncBadge">Connecting to AlAdhan…</span>
+      <button class="rbtn" id="refreshBtn" onclick="fetchHijri(true)" style="display:none">↺ Refresh</button>
+    </div>
+  </div>
+  <div style="font-size:30px;margin-top:2px">☪</div>
+</div>
+
+<div class="sec">Upcoming Events</div>
+<div class="elist" id="eventList"><div class="empty">Loading…</div></div>
+
+<!-- Add Event -->
+<div class="card">
+  <h3>Add Recurring Event</h3>
+  <div class="frow">
+    <div class="fg" style="flex:3;min-width:160px">
+      <label>Event name</label>
+      <input type="text" id="evtName" placeholder="e.g. Eid ul-Adha"/>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="fg">
+      <label>Hijri Day</label>
+      <input type="number" id="hDay" min="1" max="30" placeholder="1–30"/>
+    </div>
+    <div class="fg">
+      <label>Hijri Month</label>
+      <select id="hMonth">
+        <option value="1">Muharram (1)</option>
+        <option value="2">Safar (2)</option>
+        <option value="3">Rabi al-Awwal (3)</option>
+        <option value="4">Rabi al-Thani (4)</option>
+        <option value="5">Jumada al-Awwal (5)</option>
+        <option value="6">Jumada al-Thani (6)</option>
+        <option value="7">Rajab (7)</option>
+        <option value="8">Sha'ban (8)</option>
+        <option value="9">Ramadan (9)</option>
+        <option value="10">Shawwal (10)</option>
+        <option value="11">Dhul Qa'dah (11)</option>
+        <option value="12" selected>Dhul Hijjah (12)</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>Color</label>
+      <select id="evtColor">
+        <option value="#1D9E75">Teal</option>
+        <option value="#378ADD">Blue</option>
+        <option value="#D85A30">Coral</option>
+        <option value="#BA7517">Amber</option>
+        <option value="#7F77DD">Purple</option>
+        <option value="#E24B4A">Red</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Reminder builder -->
+  <div class="rem-builder">
+    <div class="rem-builder-title">🔔 Reminders (add as many as you want)</div>
+    <div class="rem-row">
+      <select id="remAdd">
+        <option value="1">1 day before</option>
+        <option value="2">2 days before</option>
+        <option value="3">3 days before</option>
+        <option value="5">5 days before</option>
+        <option value="7">1 week before</option>
+        <option value="10">10 days before</option>
+        <option value="14">2 weeks before</option>
+        <option value="21">3 weeks before</option>
+        <option value="30">1 month before</option>
+      </select>
+      <button class="btn-sm" onclick="addReminder()">+ Add</button>
+    </div>
+    <div class="rem-list" id="remList"></div>
+  </div>
+
+  <button class="btn" onclick="addEvent()">Save Event</button>
+</div>
+
+<!-- Reminders & Email -->
+<div class="card">
+  <h3>Reminders &amp; Email</h3>
+  <div class="frow">
+    <div class="fg" style="flex:2;min-width:140px">
+      <label>Your email</label>
+      <input type="email" id="userEmail" placeholder="you@gmail.com"/>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:7px;flex-wrap:wrap">
+      <button class="btn" onclick="saveEmail()">Save</button>
+      <button class="btn btn-blue" onclick="reqNotif()">Enable Notifications</button>
+    </div>
+  </div>
+  <div style="margin-top:13px">
+    <label style="display:block;margin-bottom:8px">EmailJS Config <span style="font-weight:400;color:#bbb">(<a href="https://www.emailjs.com" target="_blank">emailjs.com</a> — free)</span></label>
+    <div class="frow">
+      <div class="fg"><label>Service ID</label><input type="text" id="ejsSvc" placeholder="service_xxxx"/></div>
+      <div class="fg"><label>Template ID</label><input type="text" id="ejsTpl" placeholder="template_xxxx"/></div>
+      <div class="fg"><label>Public Key</label><input type="text" id="ejsKey" placeholder="xxxxxxxxxxxx"/></div>
+    </div>
+    <button class="btn" onclick="saveEJS()">Save EmailJS Config</button>
+    <div class="tip">Template variables: <code>{{event_name}}</code> <code>{{days_left}}</code> <code>{{event_date}}</code> <code>{{hijri_date}}</code> <code>{{to_email}}</code></div>
+  </div>
+  <div class="sbar" id="nStatus"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+const MONTHS = ['Muharram','Safar','Rabi al-Awwal','Rabi al-Thani',
+  'Jumada al-Awwal','Jumada al-Thani','Rajab',"Sha'ban",
+  'Ramadan','Shawwal',"Dhul Qa'dah",'Dhul Hijjah'];
+
+const CACHE_KEY = 'hijri_cache_v3';
+const EVTS_KEY  = 'hijri_events_v3';
+const CFG_KEY   = 'hijri_cfg_v3';
+
+let events = JSON.parse(localStorage.getItem(EVTS_KEY) || '[]');
+let pendingReminders = [7]; // default 1 week reminder pre-added
+
+// Preloaded events — no year, just day+month, multiple reminders
+const PRELOADED = [
+  { name:"Eid ul-Fitr",          hDay:1,  hMonth:10, reminders:[3,7],    color:"#1D9E75" },
+  { name:"Eid ul-Adha (Bakrid)", hDay:10, hMonth:12, reminders:[3,7,14], color:"#D85A30" },
+  { name:"Start of Ramadan",     hDay:1,  hMonth:9,  reminders:[7,14],   color:"#378ADD" },
+  { name:"Laylat al-Qadr",       hDay:27, hMonth:9,  reminders:[1,3],    color:"#7F77DD" },
+  { name:"Islamic New Year",     hDay:1,  hMonth:1,  reminders:[7],      color:"#BA7517" },
+  { name:"Mawlid al-Nabi",       hDay:12, hMonth:3,  reminders:[3,7],    color:"#E24B4A" },
+  { name:"Day of Arafah",        hDay:9,  hMonth:12, reminders:[1,3],    color:"#1D9E75" },
+  { name:"Ashura",               hDay:10, hMonth:1,  reminders:[3,7],    color:"#7F77DD" },
+];
+if (!events.length) {
+  events = PRELOADED.map((e,i) => ({ ...e, id:'pre_'+i }));
+  saveEvts();
+}
+
+function saveEvts() { localStorage.setItem(EVTS_KEY, JSON.stringify(events)); }
+
+// ── Reminder tag builder ──────────────────────────────────
+function addReminder() {
+  const val = parseInt(document.getElementById('remAdd').value);
+  if (pendingReminders.includes(val)) return;
+  pendingReminders.push(val);
+  renderRemTags();
+}
+
+function removeReminder(val) {
+  pendingReminders = pendingReminders.filter(v => v !== val);
+  renderRemTags();
+}
+
+function renderRemTags() {
+  const labels = {1:'1 day',2:'2 days',3:'3 days',5:'5 days',7:'1 week',
+    10:'10 days',14:'2 weeks',21:'3 weeks',30:'1 month'};
+  document.getElementById('remList').innerHTML = pendingReminders
+    .sort((a,b) => b-a)
+    .map(v => `<div class="rem-tag">
+      ${labels[v] || v+' days'} before
+      <button onclick="removeReminder(${v})" title="Remove">×</button>
+    </div>`).join('');
+}
+renderRemTags();
+
+// ── Year-agnostic: find next occurrence of hDay/hMonth ────
+// Given today's Hijri date, find the upcoming Gregorian date
+// for this event (this year or next Hijri year).
+function nextOccurrence(hDay, hMonth, todayHijri) {
+  const { day: td, month: tm, year: ty } = todayHijri;
+  // Is this year's occurrence still in the future?
+  let hYear = ty;
+  if (hMonth < tm || (hMonth === tm && hDay < td)) {
+    hYear = ty + 1; // already passed this Hijri year, use next
+  }
+  return { gDate: hijriToGreg(hDay, hMonth, hYear), hYear };
+}
+
+// ── Hijri → Gregorian ─────────────────────────────────────
+function hijriToGreg(hDay, hMonth, hYear) {
+  const N = hDay + Math.ceil(29.5*(hMonth-1)) + (hYear-1)*354
+          + Math.floor((3+11*hYear)/30) + 1948440 - 385;
+  let j = N + Math.floor((3+Math.floor(4*N/146097))/4) - 1402;
+  const e = Math.floor(4*j/1461);
+  j = j - Math.floor(1461*e/4) + 122;
+  const m  = Math.floor(5*j/153);
+  const d  = j - Math.floor(153*m/5) + 1;
+  const mo = ((m+2)%12)+1;
+  const y  = e - 4716 + Math.floor((14-mo)/12);
+  return new Date(y, mo-1, d);
+}
+
+function daysUntil(d) {
+  const n = new Date(); n.setHours(0,0,0,0);
+  return Math.round((d-n)/86400000);
+}
+
+// ── Fetch Hijri date from AlAdhan ─────────────────────────
+async function fetchHijri(force=false) {
+  const now = new Date();
+  const dd   = String(now.getDate()).padStart(2,'0');
+  const mm   = String(now.getMonth()+1).padStart(2,'0');
+  const yyyy = now.getFullYear();
+  const todayStr = `${dd}-${mm}-${yyyy}`;
+
+  if (!force) {
+    try {
+      const c = JSON.parse(localStorage.getItem(CACHE_KEY)||'null');
+      if (c && c.gDate === todayStr) { applyHijri(c,'cached'); return; }
+    } catch(e){}
+  }
+
+  document.getElementById('hijriDate').innerHTML = '<span class="spinner"></span>Syncing…';
+  document.getElementById('syncBadge').textContent = 'Connecting to AlAdhan…';
+  document.getElementById('syncBadge').className = 'sbadge';
+
+  try {
+    const url = `https://api.aladhan.com/v1/timingsByCity/${todayStr}?city=Vijayawada&country=India&method=1`;
+    const res  = await fetch(url);
+    const json = await res.json();
+    if (json.code !== 200) throw new Error('API error');
+    const h = json.data.date.hijri;
+    const obj = {
+      gDate: todayStr,
+      day:   parseInt(h.day),
+      month: parseInt(h.month.number),
+      year:  parseInt(h.year),
+      fetchedAt: Date.now()
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(obj));
+    applyHijri(obj, 'live');
+  } catch(err) {
+    fallbackLocal();
+  }
+}
+
+function applyHijri(d, src) {
+  window._todayHijri = d;
+  const now = new Date();
+  document.getElementById('hijriDate').textContent =
+    `${d.day} ${MONTHS[d.month-1]} ${d.year} AH`;
+  document.getElementById('gregDate').textContent =
+    now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const b = document.getElementById('syncBadge');
+  b.textContent = src==='live'
+    ? '✓ Live — AlAdhan API (India / Karachi method)'
+    : '✓ Cached today — AlAdhan API';
+  b.className = 'sbadge';
+  document.getElementById('refreshBtn').style.display = 'inline-block';
+  render();
+}
+
+function fallbackLocal() {
+  window._todayHijri = calcHijri(new Date());
+  const h = window._todayHijri;
+  document.getElementById('hijriDate').textContent =
+    `${h.day} ${MONTHS[h.month-1]} ${h.year} AH`;
+  document.getElementById('gregDate').textContent =
+    new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const b = document.getElementById('syncBadge');
+  b.textContent = '⚠ Offline — local calculation (may be ±1 day)';
+  b.className = 'sbadge err';
+  document.getElementById('refreshBtn').style.display = 'inline-block';
+  render();
+}
+
+function calcHijri(date) {
+  const jd = Math.floor(date/86400000+2440587.5);
+  let l = jd-1948440+10632;
+  const n = Math.floor((l-1)/10631);
+  l = l-10631*n+354;
+  const j = Math.floor((10985-l)/5316)*Math.floor(50*l/17719)
+          + Math.floor(l/5670)*Math.floor(43*l/15238);
+  l = l-Math.floor((30-j)/15)*Math.floor(17719*j/50)
+      -Math.floor(j/16)*Math.floor(15238*j/43)+29;
+  const month = Math.floor(24*l/709);
+  return { day: l-Math.floor(709*month/24), month, year: 30*n+j-30 };
+}
+
+// ── Render ────────────────────────────────────────────────
+function render() {
+  const th = window._todayHijri;
+  if (!th) return; // wait for date fetch
+
+  const list = document.getElementById('eventList');
+  const labels = {1:'1 day',2:'2 days',3:'3 days',5:'5 days',7:'1 week',
+    10:'10 days',14:'2 weeks',21:'3 weeks',30:'1 month'};
+
+  const enriched = events.map(e => {
+    const { gDate, hYear } = nextOccurrence(e.hDay, e.hMonth, th);
+    const dl = daysUntil(gDate);
+    return { ...e, gDate, hYear, dl };
+  }).sort((a,b) => a.dl - b.dl);
+
+  if (!enriched.length) {
+    list.innerHTML = '<div class="empty">No events yet.</div>'; return;
+  }
+
+  list.innerHTML = enriched.map(e => {
+    const d   = e.dl;
+    const lbl = d === 0 ? 'Today!' : d === 1 ? 'Tomorrow' : `${d} days`;
+    const cls = d <= 3 ? 'dsoon' : d <= 14 ? 'dnear' : 'dok';
+    const bge = d <= 7  ? '<span class="pill ps">Soon</span>'
+              : d <= 30 ? '<span class="pill pu">Upcoming</span>' : '';
+    const gs  = e.gDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const rems = (e.reminders||[7]).sort((a,b)=>b-a);
+    const remChips = rems.map(r => {
+      const firing = d >= 0 && d <= r;
+      return `<span class="rem-chip${firing?' firing':''}">🔔 ${labels[r]||r+'d'} before</span>`;
+    }).join('');
+
+    return `<div class="ecard">
+      <div class="ecard-top">
+        <div class="edot" style="background:${e.color}"></div>
+        <div class="einfo">
+          <div class="ename">${e.name}${bge}</div>
+          <div class="edate">${e.hDay} ${MONTHS[e.hMonth-1]} (every year) · ${gs}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="dleft ${cls}">${lbl}</span>
+          <button class="del-btn" onclick="delEvt('${e.id}')">Remove</button>
+        </div>
+      </div>
+      <div class="ecard-rems">${remChips}</div>
+    </div>`;
+  }).join('');
+
+  checkReminders(enriched);
+}
+
+// ── Add / remove events ───────────────────────────────────
+function addEvent() {
+  const name  = document.getElementById('evtName').value.trim();
+  const hDay  = parseInt(document.getElementById('hDay').value);
+  const hMonth= parseInt(document.getElementById('hMonth').value);
+  const col   = document.getElementById('evtColor').value;
+  if (!name || !hDay) { alert('Please enter event name and Hijri day.'); return; }
+  if (!pendingReminders.length) { alert('Please add at least one reminder.'); return; }
+  events.push({ id: Date.now().toString(), name, hDay, hMonth,
+    reminders: [...pendingReminders], color: col });
+  saveEvts(); render();
+  document.getElementById('evtName').value = '';
+  document.getElementById('hDay').value    = '';
+  pendingReminders = [7];
+  renderRemTags();
+}
+
+function delEvt(id) {
+  if (!confirm('Remove this event?')) return;
+  events = events.filter(e => e.id !== id);
+  saveEvts(); render();
+}
+
+// ── Check & fire reminders ────────────────────────────────
+function checkReminders(enriched) {
+  enriched.forEach(e => {
+    (e.reminders||[7]).forEach(r => {
+      // Key: unique per event + reminder-days + year occurrence
+      const key = `rem_${e.id}_${r}_${e.hYear}_${new Date().toDateString()}`;
+      if (e.dl >= 0 && e.dl <= r && !sessionStorage.getItem(key)) {
+        sessionStorage.setItem(key, '1');
+        fireNotif(e, r);
+        sendEmailReminder(e, r);
+      }
+    });
+  });
+}
+
+function fireNotif(evt, daysReminder) {
+  if (Notification.permission !== 'granted') return;
+  const body = evt.dl === 0
+    ? `${evt.name} is TODAY! 🎉`
+    : `${evt.name} is in ${evt.dl} day${evt.dl===1?'':'s'} (${evt.gDate.toLocaleDateString('en-IN',{day:'numeric',month:'short'})})`;
+  new Notification('Hijri Calendar 🕌', { body });
+}
+
+function sendEmailReminder(evt, daysReminder) {
+  const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+  if (!c.serviceId||!c.templateId||!c.publicKey||!c.email) return;
+  emailjs.init(c.publicKey);
+  emailjs.send(c.serviceId, c.templateId, {
+    to_email:   c.email,
+    event_name: evt.name,
+    days_left:  evt.dl,
+    event_date: evt.gDate.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),
+    hijri_date: `${evt.hDay} ${MONTHS[evt.hMonth-1]} ${evt.hYear} AH`
+  }).catch(()=>{});
+}
+
+// ── Notification permission ───────────────────────────────
+function reqNotif() {
+  const s = document.getElementById('nStatus');
+  if (!('Notification' in window)) {
+    s.textContent='Notifications not supported here. Use email instead.';
+    s.className='sbar serr'; return;
+  }
+  Notification.requestPermission().then(p => {
+    s.textContent = p==='granted'
+      ? '✓ Notifications enabled! You will be alerted when events are due.'
+      : 'Denied. Go to Chrome → Site Settings → Notifications to enable.';
+    s.className = 'sbar '+(p==='granted'?'sok':'serr');
+  });
+}
+
+// ── Save config ───────────────────────────────────────────
+function saveEmail() {
+  const em = document.getElementById('userEmail').value.trim();
+  if (!em) return;
+  const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+  c.email = em; localStorage.setItem(CFG_KEY, JSON.stringify(c));
+  showStatus('✓ Email saved: '+em, true);
+}
+
+function saveEJS() {
+  const svc = document.getElementById('ejsSvc').value.trim();
+  const tpl = document.getElementById('ejsTpl').value.trim();
+  const key = document.getElementById('ejsKey').value.trim();
+  if (!svc||!tpl||!key) { alert('Please fill all three EmailJS fields.'); return; }
+  const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+  c.serviceId=svc; c.templateId=tpl; c.publicKey=key;
+  localStorage.setItem(CFG_KEY, JSON.stringify(c));
+  showStatus('✓ EmailJS config saved! Email reminders are active.', true);
+}
+
+function showStatus(msg, ok) {
+  const s = document.getElementById('nStatus');
+  s.textContent = msg;
+  s.className = 'sbar '+(ok?'sok':'serr');
+}
+
+// ── Init ──────────────────────────────────────────────────
+(function init() {
+  const c = JSON.parse(localStorage.getItem(CFG_KEY)||'{}');
+  if (c.email)      document.getElementById('userEmail').value = c.email;
+  if (c.serviceId)  document.getElementById('ejsSvc').value    = c.serviceId;
+  if (c.templateId) document.getElementById('ejsTpl').value    = c.templateId;
+  if (c.publicKey)  document.getElementById('ejsKey').value    = c.publicKey;
+  if (/Android/i.test(navigator.userAgent))
+    document.getElementById('installBar').style.display='block';
+  fetchHijri();
+})();
+</script>
+</body>
+</html>
